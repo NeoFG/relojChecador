@@ -1,0 +1,105 @@
+/* Estilos generales */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #1e1e2f, #181825);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    align-items: center;
+    width: 800px;
+    background: rgba(34, 34, 59, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+}
+
+/* Lado izquierdo para la imagen */
+.left-side {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #222245;
+}
+
+.left-side img {
+    max-width: 100%;
+    height: auto;
+    padding: 20px;
+}
+
+/* Lado derecho para el formulario */
+.right-side {
+    width: 50%;
+    padding: 40px;
+    text-align: center;
+}
+
+/* Título y botones */
+h2 {
+    color: #df42f5;
+    text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+    margin-bottom: 20px;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="password"] {
+    padding: 10px;
+    font-size: 18px;
+    margin-bottom: 20px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ff00ff;
+    background-color: #222245;
+    color: white;
+    outline: none;
+    text-align: center;
+}
+
+/* Botón de inicio de sesión */
+.button {
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    margin: 10px 0;
+    background: linear-gradient(135deg, #ff00ff, #1e90ff);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.button:hover {
+    transform: scale(1.1);
+}
+
+/* Link de registro */
+.register {
+    display: block;
+    margin-top: 15px;
+    color: #1e90ff;
+    text-decoration: none;
+}
+
+.register:hover {
+    color: #ff00ff;
+}
+
+/* Fondo temático */
+body::before {
+    content: "";
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: url('https://www.transparenttextures.com/patterns/black-linen.png'), radial-gradient(circle, rgba(70, 0, 100, 1) 0%, rgba(0, 0, 0, 1) 100%);
+    z-index: -1;
+    opacity: 0.8;
+}
