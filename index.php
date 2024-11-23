@@ -53,7 +53,7 @@ $app->post('/check', function (Request $request, Response $response, $args) {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$result) {
-            $response->getBody()->write(json_encode(["message" => "ID no válido. El empleado no está registrado."]));
+            $response->getBody()->write(json_encode(["message" => "Por favor, ingrese un ID válido."]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
