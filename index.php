@@ -7,6 +7,9 @@ use Slim\Factory\AppFactory;
 require __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/db.php'; // Incluye la clase Db
 
+// Configurar la zona horaria a la de México
+date_default_timezone_set('America/Mexico_City');
+
 // Permitir solicitudes de cualquier origen (cuidado en producción)
 header('Access-Control-Allow-Origin: *');
 // Permitir los métodos que la API acepta
