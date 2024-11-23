@@ -39,24 +39,32 @@ $app->post('/check', function (Request $request, Response $response, $args) {
     $userId = $data['userId'] ?? null;
 
     if (!$userId) {
-        $response->getBody()->write(json_encode(["error" => "ID no proporcionado."]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        $response->getBody()->write(json_encode([
+            "success" => false,
+            "message" => "ID no proporcionado."
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
 
     $date = date('Y-m-d');
     $time = date('Y-m-d H:i:s');
 
     try {
+        // Verificar si el usuario existe
         $stmt = $conn->prepare("SELECT * FROM empleados WHERE user_id = ?");
         $stmt->bindParam(1, $userId, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$result) {
-            $response->getBody()->write(json_encode(["message" => "Por favor, ingrese un ID válido."]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            $response->getBody()->write(json_encode([
+                "success" => false,
+                "message" => "ID no válido. El empleado no está registrado."
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         }
 
+        // Verificar registros del día actual
         $stmt = $conn->prepare(
             "SELECT * FROM registros WHERE user_id = ? AND DATE(hora_entrada) = ? ORDER BY id DESC LIMIT 1"
         );
@@ -66,6 +74,7 @@ $app->post('/check', function (Request $request, Response $response, $args) {
         $registro = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$registro) {
+            // Primera entrada del día
             $stmt = $conn->prepare(
                 "INSERT INTO registros (user_id, hora_entrada, contador_entrada) VALUES (?, ?, 1)"
             );
@@ -73,7 +82,11 @@ $app->post('/check', function (Request $request, Response $response, $args) {
             $stmt->bindParam(2, $time, PDO::PARAM_STR);
             $stmt->execute();
 
-            $response->getBody()->write(json_encode(["message" => "Entrada registrada exitosamente.", "hora_entrada" => $time]));
+            $response->getBody()->write(json_encode([
+                "success" => true,
+                "message" => "Entrada registrada exitosamente.",
+                "hora_entrada" => $time
+            ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         }
 
@@ -82,7 +95,10 @@ $app->post('/check', function (Request $request, Response $response, $args) {
             $stmt->bindParam(1, $registro['id'], PDO::PARAM_INT);
             $stmt->execute();
 
-            $response->getBody()->write(json_encode(["message" => "Tu salida a comer ha sido permitida."]));
+            $response->getBody()->write(json_encode([
+                "success" => true,
+                "message" => "Tu salida a comer ha sido permitida."
+            ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         }
 
@@ -91,7 +107,10 @@ $app->post('/check', function (Request $request, Response $response, $args) {
             $stmt->bindParam(1, $registro['id'], PDO::PARAM_INT);
             $stmt->execute();
 
-            $response->getBody()->write(json_encode(["message" => "Tu regreso a trabajar ha sido registrado."]));
+            $response->getBody()->write(json_encode([
+                "success" => true,
+                "message" => "Tu regreso a trabajar ha sido registrado."
+            ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         }
 
@@ -101,14 +120,25 @@ $app->post('/check', function (Request $request, Response $response, $args) {
             $stmt->bindParam(2, $registro['id'], PDO::PARAM_INT);
             $stmt->execute();
 
-            $response->getBody()->write(json_encode(["message" => "Salida final registrada exitosamente.", "hora_salida" => $time]));
+            $response->getBody()->write(json_encode([
+                "success" => true,
+                "message" => "Salida final registrada exitosamente.",
+                "hora_salida" => $time
+            ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         }
 
-        $response->getBody()->write(json_encode(["message" => "Acción no permitida. Revisa horario de jornada."]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        // Acción no permitida
+        $response->getBody()->write(json_encode([
+            "success" => false,
+            "message" => "Acción no permitida. Revisa horario de jornada."
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     } catch (Exception $e) {
-        $response->getBody()->write(json_encode(["error" => $e->getMessage()]));
+        $response->getBody()->write(json_encode([
+            "success" => false,
+            "message" => "Error interno del servidor: " . $e->getMessage()
+        ]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
     }
 });
