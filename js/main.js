@@ -1,53 +1,17 @@
-function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
-}
-
-setInterval(updateClock, 1000);
-
-// Función para cargar la lista de entradas
-function loadEntradas() {
-    fetch('../php/get_entradas.php')
-        .then(response => response.json())
-        .then(data => {
-            const entradaList = document.getElementById('entrada-list');
-            entradaList.innerHTML = '';
-            data.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = `ID: ${item.user_id} - Entrada: ${item.hora_entrada}`;
-                entradaList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-// Función para cargar la lista de salidas
-function loadSalidas() {
-    fetch('../php/get_salidas.php')
-        .then(response => response.json())
-        .then(data => {
-            const salidaList = document.getElementById('salida-list');
-            salidaList.innerHTML = '';
-            data.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = `ID: ${item.user_id} - Salida: ${item.hora_salida}`;
-                salidaList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-document.getElementById('check-in-btn').addEventListener('click', () => {
+document.getElementById('check-btn').addEventListener('click', () => {
     const userId = document.getElementById('userId').value;
-    if (userId === "") {
-        alert("Por favor, ingrese su ID");
+    const checkButton = document.getElementById('check-btn');
+
+    // Validar si el campo está vacío o contiene caracteres no válidos
+    if (!userId || isNaN(userId)) {
+        alert("Por favor, ingrese un ID válido.");
         return;
     }
 
-    fetch('../php/check_in.php', {
+    // Deshabilitar el botón mientras se procesa la solicitud
+    checkButton.disabled = true;
+
+    fetch('../php/check.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -56,34 +20,31 @@ document.getElementById('check-in-btn').addEventListener('click', () => {
     })
         .then(response => response.text())
         .then(data => {
-            alert(data);
-            loadEntradas();  // Actualizar la lista de entradas después de registrar la entrada.
+            // Mostrar el mensaje retornado por el servidor en un elemento
+            displayMessage(data);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            displayMessage('Ocurrió un error al procesar la solicitud.');
+        })
+        .finally(() => {
+            // Volver a habilitar el botón
+            checkButton.disabled = false;
+        });
 });
 
-document.getElementById('check-out-btn').addEventListener('click', () => {
-    const userId = document.getElementById('userId').value;
-    if (userId === "") {
-        alert("Por favor, ingrese su ID");
-        return;
+// Función para mostrar el mensaje en la página
+function displayMessage(message) {
+    let messageElement = document.getElementById('message');
+    if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'message';
+        messageElement.style.marginTop = '10px';
+        messageElement.style.padding = '10px';
+        messageElement.style.borderRadius = '5px';
+        messageElement.style.backgroundColor = '#f0f0f0';
+        messageElement.style.color = '#333';
+        document.querySelector('.container').appendChild(messageElement);
     }
-
-    fetch('../php/check_out.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId })
-    })
-        .then(response => response.text())
-        .then(data => {
-            alert(data);
-            loadSalidas();  // Actualizar la lista de salidas después de registrar la salida.
-        })
-        .catch(error => console.error('Error:', error));
-});
-
-// Cargar las listas al cargar la página
-loadEntradas();
-loadSalidas();
+    messageElement.textContent = message;
+}
